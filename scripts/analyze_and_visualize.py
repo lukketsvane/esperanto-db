@@ -13,7 +13,7 @@ sns.set_palette("husl")
 
 def load_data():
     base_dir = Path("/home/user/esperanto-db")
-    df = pd.read_csv(base_dir / "conversations_evaluated.csv")
+    df = pd.read_csv(base_dir / "data" / "conversations_final.csv")
     df = df[df['error'].isna() | (df['error'] == '')]
     return df
 
