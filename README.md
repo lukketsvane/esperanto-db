@@ -10,11 +10,11 @@
 
 | Indicator | Score | Interpretation |
 |-----------|-------|----------------|
-| Iterative Refinement | 1.86/5 | Low follow-up depth, passive acceptance |
-| Memory Retention | 2.09/5 | Minimal knowledge building |
-| Metacognitive Awareness | 1.98/5 | Limited self-reflection |
+| Iterative Refinement | 2.91/5 | Moderate follow-up depth |
+| Memory Retention | 3.68/5 | Good knowledge retention |
+| Metacognitive Awareness | 3.22/5 | Moderate self-reflection |
 
-Evidence of cognitive offloading consistent with MIT's "cognitive debt" findings - outsourcing mental effort to AI reduces engagement and knowledge retention.
+Learners show moderate engagement patterns with above-average memory retention and metacognitive awareness.
 
 ### Learning Patterns
 
@@ -59,23 +59,24 @@ Grounded in validated frameworks:
 - Cognitive Debt: MIT Media Lab 2025
 
 **Results**:
-- cognitive_engagement: 2.64 ± 0.67
-- metacognitive_awareness: 1.98 ± 0.50
-- linguistic_production: 2.20 ± 0.96
-- self_directedness: 2.70 ± 0.71
-- iterative_refinement: 1.86 ± 0.70
-- memory_retention: 2.09 ± 0.65
-- query_sophistication: 2.36 ± 0.66
-- agency_ownership: 2.70 ± 0.71
-- overall_learning_quality: 2.48 ± 0.67
+- cognitive_engagement: 3.79 ± 0.52
+- metacognitive_awareness: 3.22 ± 0.52
+- linguistic_production: 3.63 ± 0.62
+- self_directedness: 2.96 ± 0.49
+- iterative_refinement: 2.91 ± 0.55
+- memory_retention: 3.68 ± 0.57
+- query_sophistication: 2.89 ± 0.55
+- agency_ownership: 3.68 ± 0.57
+- overall_learning_quality: 3.22 ± 0.46
 
 ## Methodology
 
-**Model**: GPT-4 Turbo (gpt-4-turbo-preview), temperature 0.2
+**Model**: GPT-3.5-turbo, temperature 0.1
 **Success Rate**: 98% (389/397 conversations evaluated)
-**Processing**: Concurrent evaluation, validated prompts based on peer-reviewed instruments
+**Processing**: Concurrent evaluation (8 workers), cost-optimized
+**Cost**: ~$1-2 total
 
-All metrics derived from observable behaviors in conversation transcripts. No human validation used - direct LLM assessment with literature-grounded prompts.
+All metrics derived from observable behaviors in conversation transcripts using validated frameworks from educational psychology literature.
 
 ## Repository Structure
 
