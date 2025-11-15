@@ -13,45 +13,11 @@ if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable not set")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-MODEL = "gpt-4-turbo-preview"
+MODEL = "gpt-3.5-turbo"
 progress_lock = threading.Lock()
 progress_counter = {"count": 0, "total": 0}
 
-EVALUATION_PROMPT = """Analyze this Esperanto learning conversation and provide ratings (1-5 scale):
-
-COGNITIVE_LOAD (Klepsch et al. 2017):
-- Germane load: depth of learning investment
-
-METACOGNITION (Schraw & Dennison 1994 MAI):
-- Planning: goal-setting, organization
-- Monitoring: comprehension checking
-- Evaluation: reflection on effectiveness
-
-LINGUISTIC_PRODUCTION (ACTFL 2024):
-- Esperanto usage quantity and quality
-- Grammatical accuracy
-
-SELF_REGULATION (Pintrich et al. 1991 MSLQ):
-- Autonomy vs dependency on AI
-- Critical thinking depth
-
-ENGAGEMENT (Kahu et al. 2018 HESES):
-- Cognitive engagement level
-- Affective interest
-
-CRITICAL_THINKING (Liu et al. 2014):
-- Question sophistication
-- Analytical reasoning
-
-ITERATIVE_BEHAVIOR:
-- Follow-up depth
-- Building on exchanges
-
-COGNITIVE_DEBT (MIT 2025):
-- Memory retention across conversation
-- Learning ownership vs outsourcing
-
-Return JSON with these exact keys (all 1-5):
+EVALUATION_PROMPT = """Rate this Esperanto learning conversation (1-5 scale). Return JSON:
 {
   "germane_load": <1-5>,
   "metacog_planning": <1-5>,
@@ -67,9 +33,7 @@ Return JSON with these exact keys (all 1-5):
   "iterative_depth": <1-5>,
   "memory_retention": <1-5>,
   "ownership": <1-5>
-}
-
-Base ratings on observable evidence only."""
+}"""
 
 def extract_user_messages(conversation_data):
     user_messages = []
@@ -92,10 +56,10 @@ def call_openai(user_messages):
         response = client.chat.completions.create(
             model=MODEL,
             messages=[
-                {"role": "system", "content": "You are an expert educational assessor. Provide precise ratings in valid JSON."},
-                {"role": "user", "content": f"CONVERSATION:\n{user_text}\n\n{EVALUATION_PROMPT}"}
+                {"role": "system", "content": "Rate learning conversations. Return valid JSON."},
+                {"role": "user", "content": f"{user_text}\n\n{EVALUATION_PROMPT}"}
             ],
-            temperature=0.2,
+            temperature=0.1,
             response_format={"type": "json_object"}
         )
         return json.loads(response.choices[0].message.content)
