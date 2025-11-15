@@ -41,10 +41,9 @@ Learners show moderate engagement patterns with above-average memory retention a
 
 ## Data Files
 
-**conversations_evaluated.csv**: Full dataset (397 rows, evaluation metrics)
-**prompt_conversations_final_for_paper.csv**: Conversation metadata
-**prompt_participants_final_for_paper.csv**: Participant information (375)
-**quiz_answers.json**: Quiz responses
+**data/conversations_final.csv**: Complete dataset (397 conversations, 44 columns including evaluations and metadata)
+**data/prompt_participants_final_for_paper.csv**: Participant information (375 participants)
+**figures/**: Publication-quality visualizations (PNG+PDF)
 **analysis/LITERATURE_REVIEW_COMPREHENSIVE.md**: Framework sources (20+ papers)
 
 ## Evaluation Metrics (1-5 scale)
@@ -81,11 +80,17 @@ All metrics derived from observable behaviors in conversation transcripts using 
 ## Repository Structure
 
 ```
-raw_data/csn_exports/      CSN1-CSN22 original exports
-analysis/                  Literature review, figures
-*.csv                      Processed datasets
-evaluate_conversations.py  Evaluation script
-analyze_and_visualize.py   Figure generation
+data/
+  conversations_final.csv          Complete dataset (397 conversations, 44 columns)
+  prompt_participants_final.csv    Participant data (375 participants)
+figures/                           Publication figures (PNG+PDF)
+scripts/
+  evaluate_conversations.py        Evaluation script
+  analyze_and_visualize.py         Figure generation
+  merge_data.py                    Data merging utility
+raw_data/csn_exports/              Original CSN1-CSN22 exports
+analysis/
+  LITERATURE_REVIEW_COMPREHENSIVE.md  Framework sources (20+ papers)
 ```
 
 ## Citations
