@@ -1,0 +1,505 @@
+[
+  {
+    "question": "In which computer are you sitting?",
+    "type": "multiple_choice",
+    "options": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10+"],
+    "answer": "4"
+  },
+  {
+    "question": "What is your gender?",
+    "type": "multiple_choice",
+    "options": ["Male", "Female", "Other"],
+    "answer": "Male"
+  },
+  {
+    "question": "What is your age?",
+    "type": "multiple_choice",
+    "options": ["16", "17", "18", "19", "20", "21", "22", "23", "24", "25+"],
+    "answer": "20"
+  },
+  {
+    "question": "Which year of university are you in?",
+    "type": "multiple_choice",
+    "options": [
+      "Undergraduate first year",
+      "Undergraduate second year",
+      "Undergraduate third year",
+      "Undergraduate fourth year or further",
+      "Master",
+      "PhD",
+      "Other"
+    ],
+    "answer": "Undergraduate second year"
+  },
+  {
+    "question": "Which faculty do you belong to?",
+    "type": "multiple_choice",
+    "options": [
+      "Arts",
+      "Economics or Business School",
+      "Engineering",
+      "Medicine and Health Sciences",
+      "Social Sciences",
+      "Other"
+    ],
+    "answer": "Engineering"
+  },
+  {
+    "question": "Predicted degree classification",
+    "type": "multiple_choice",
+    "options": [
+      "First-Class Honours (70%+)",
+      "Upper Second-Class Honours (60–70%)",
+      "Lower Second-Class Honours (50–60%)",
+      "Third-Class Honours (40–50%)",
+      "Ordinary Degree"
+    ],
+    "answer": "Lower Second-Class Honours (50–60%)"
+  },
+  {
+    "question": "How familiar are you with generative AI tools?",
+    "type": "multiple_choice",
+    "options": [
+      "I have not heard of them",
+      "I have heard of them but do not use them myself",
+      "I have used them a few times",
+      "I use them occasionally",
+      "I use them all the time"
+    ],
+    "answer": "I have used them a few times"
+  },
+  {
+    "question": "Do you have a subscription to ChatGPT or other similar platforms?",
+    "type": "multiple_choice",
+    "options": ["No", "Yes, free", "Yes, paid"],
+    "answer": "No"
+  },
+  {
+    "question": "In general, do you consider yourself someone who always follows the rules?",
+    "type": "slider",
+    "options": [0,10],
+    "answer": 4
+  },
+  {
+    "question": "Languages you speak besides English (check all that apply)",
+    "type": "checkbox",
+    "options": ["Spanish", "Italian", "German", "French", "Other"],
+    "answer": ["Spanish"]
+  },
+  {
+    "question": "Identify the correct Esperanto translation: The bird flies.",
+    "type": "multiple_choice",
+    "options": ["La birdo flugas", "La birdo dormas", "La birdo estas"],
+    "answer": "La birdo flugas"
+  },
+  {
+    "question": "Identify the correct Esperanto translation: The boy learns Esperanto.",
+    "type": "multiple_choice",
+    "options": ["La knabo lernas Esperanto", "La knabo estas Esperanto", "La knabo pensas Esperanto"],
+    "answer": "La knabo pensas Esperanto"
+  },
+  {
+    "question": "Fill in the blank with the most appropriate verb: Mi ____ Anna.",
+    "type": "short_answer",
+    "answer": "estas"
+  },
+  {
+    "question": "Fill in the blank with the most appropriate verb: La knabo ____ Esperanton.",
+    "type": "short_answer",
+    "answer": "lernas"
+  },
+  {
+    "question": "Fill in the blank with the most appropriate verb: La birdo ____ rapide.",
+    "type": "short_answer",
+    "answer": "flugas"
+  },
+  {
+    "question": "Fill in the blank with the most appropriate verb: Tom kaj Anna ____ amikoj.",
+    "type": "short_answer",
+    "answer": "estas"
+  },
+  {
+    "question": "Write the negative form of the sentence 'Tom dormas.'",
+    "type": "short_answer",
+    "answer": "Tom ne dormas"
+  },
+  {
+    "question": "Write the negative form of the sentence 'Anna lernas.'",
+    "type": "short_answer",
+    "answer": "Anna ne lernas"
+  },
+  {
+    "question": "Write the negative form of the sentence 'La hundo flugas.'",
+    "type": "short_answer",
+    "answer": "La hundo ne flugas"
+  },
+  {
+    "question": "Write the negative form of the sentence 'La birdo estas granda.'",
+    "type": "short_answer",
+    "answer": "La birdo ne estas granda"
+  },
+  {
+    "question": "Past tense: Tom _____ bone hieraŭ. (to sleep)",
+    "type": "short_answer",
+    "answer": "dormis"
+  },
+  {
+    "question": "Past tense: Anna _____ rapide. (to learn)",
+    "type": "short_answer",
+    "answer": "lernis"
+  },
+  {
+    "question": "Past tense: La instruisto _____ bona. (to be)",
+    "type": "short_answer",
+    "answer": "estis"
+  },
+  {
+    "question": "Transform the singular noun into its plural form: La kato",
+    "type": "short_answer",
+    "answer": "La katoj"
+  },
+  {
+    "question": "Transform the singular noun into its plural form: Apartamento",
+    "type": "short_answer",
+    "answer": "Apartamentoj"
+  },
+  {
+    "question": "Transform the singular noun into its plural form: La instruisto",
+    "type": "short_answer",
+    "answer": "La instruistoj"
+  },
+  {
+    "question": "Transform the singular noun into its plural form: Papero",
+    "type": "short_answer",
+    "answer": "Paperoj"
+  },
+  {
+    "question": "Transform the singular noun into its plural form: La virino",
+    "type": "short_answer",
+    "answer": "La virinoj"
+  },
+  {
+    "question": "Match the English word to its Esperanto translation: woman",
+    "type": "matching",
+    "options": {"woman":"virino", "cat":"kato", "boy":"knabo", "dog":"hundo"},
+    "answer": "virino"
+  },
+  {
+    "question": "Match the English word to its Esperanto translation: cat",
+    "type": "matching",
+    "options": {"woman":"virino", "cat":"kato", "boy":"knabo", "dog":"hundo"},
+    "answer": "kato"
+  },
+  {
+    "question": "Match the English word to its Esperanto translation: boy",
+    "type": "matching",
+    "options": {"woman":"virino", "cat":"kato", "boy":"knabo", "dog":"hundo"},
+    "answer": "knabo"
+  },
+  {
+    "question": "Match the English word to its Esperanto translation: dog",
+    "type": "matching",
+    "options": {"woman":"virino", "cat":"kato", "boy":"knabo", "dog":"hundo"},
+    "answer": "hundo"
+  },
+  {
+    "question": "Choose the correct option for the sentence: Kie estas la hundo?",
+    "type": "multiple_choice",
+    "options": ["La hundo estas sub la tablo", "La hundo ne flugas", "La hundo estas feliĉa"],
+    "answer": "La hundo estas sub la tablo"
+  },
+  {
+    "question": "Dialogue comprehension: Is the Esperanto teacher a man or a woman?",
+    "type": "multiple_choice",
+    "options": ["Man", "Woman"],
+    "answer": "Man"
+  },
+  {
+    "question": "Dialogue comprehension: Who is happier with the teacher?",
+    "type": "multiple_choice",
+    "options": ["Anna", "Tom"],
+    "answer": "Tom"
+  },
+  {
+    "question": "Dialogue comprehension: Does Tom agree that the teacher is slow?",
+    "type": "multiple_choice",
+    "options": ["Yes, Tom agrees the teacher is slow", "No, Tom does not agree that the teacher is slow"],
+    "answer": "No, Tom does not agree that the teacher is slow"
+  },
+  {
+    "question": "Dialogue comprehension: Why does Anna think the teacher is slow?",
+    "type": "multiple_choice",
+    "options": ["Because the teacher does not teach well", "Because the teacher speaks too fast", "Because the teacher is new"],
+    "answer": "Because the teacher does not teach well"
+  },
+  {
+    "question": "Dialogue comprehension: What does Anna say at the end about learning Esperanto?",
+    "type": "multiple_choice",
+    "options": ["Anna says she learns well with the slow teacher", "Anna says she wants a new teacher", "Anna says she stops learning"],
+    "answer": "Anna says she learns well with the slow teacher"
+  },
+  {
+    "question": "Multiple‑choice reading: Did Anna sleep well?",
+    "type": "multiple_choice",
+    "options": ["Yes, Anna slept well", "No, Anna did not sleep well"],
+    "answer": "No, Anna did not sleep well"
+  },
+  {
+    "question": "Why can't Tom's cat play outside?",
+    "type": "multiple_choice",
+    "options": ["Because it is raining", "Because Tom doesn't allow it", "Because it is sick"],
+    "answer": "Because it is raining"
+  },
+  {
+    "question": "What does the teacher say about the cat?",
+    "type": "multiple_choice",
+    "options": ["The cat is certainly happy", "The cat is sad", "The cat needs to study"],
+    "answer": "The cat is certainly happy"
+  },
+  {
+    "question": "Translate into Esperanto: The young girl",
+    "type": "short_answer",
+    "answer": "La juna knabino"
+  },
+  {
+    "question": "Translate into Esperanto: The big cat sleeps on the table",
+    "type": "short_answer",
+    "answer": "La granda kato dormas sur la tablo"
+  },
+  {
+    "question": "Translate into Esperanto: Because the teacher is good, we learn Esperanto fast",
+    "type": "short_answer",
+    "answer": "Ĉar la instruisto estas bona, ni lernas Esperanton rapide"
+  },
+  {
+    "question": "Image description: Choose the sentence that best describes the picture of a bird",
+    "type": "multiple_choice",
+    "options": ["La malbela birdo flugas rapide.", "La birdo flugas malrapide kaj estas malbela."],
+    "answer": "La malbela birdo flugas rapide."
+  },
+  {
+    "question": "Image description: Choose the sentence that best describes the picture of a man, woman and boy in an apartment",
+    "type": "multiple_choice",
+    "options": ["La viro kaj la virino legas librojn, kaj la juna knabo dormas.", "La viro kaj la virino estas en la apartamento, sed la juna knabo dormas."],
+    "answer": "La viro kaj la virino legas librojn, kaj la juna knabo dormas."
+  },
+  {
+    "question": "Reconstruct the story (order of sentences)",
+    "type": "ordering",
+    "answer": [1,2,3,4,5,6,7,8,9,10]
+  },
+  {
+    "question": "Anna responds to Tom saying ‘Mi lernas rapide.’ Choose the best response",
+    "type": "multiple_choice",
+    "options": [
+      "Ĉar la instruisto estas malbona.",
+      "Kaj vi estas Tom.",
+      "Sed vi dormas multe.",
+      "Ĉar Esperanto estas interesa."
+    ],
+    "answer": "Kaj vi estas Tom."
+  },
+  {
+    "question": "Dialogue: What is the name of the teacher?",
+    "type": "multiple_choice",
+    "options": ["Marko", "Jose", "Maria", "Petro"],
+    "answer": "Jose"
+  },
+  {
+    "question": "Dialogue: Who is the student that student B does not see at first?",
+    "type": "multiple_choice",
+    "options": ["Marko", "Jose", "Maria", "Petro"],
+    "answer": "Jose"
+  },
+  {
+    "question": "Dialogue: Are the students having an exam?",
+    "type": "multiple_choice",
+    "options": [
+      "Yes, they are quiet, only have papers on their desks and the teacher is walking around the classroom.",
+      "No, they have papers and books so it must not be an exam because usually books are not allowed in exams."
+    ],
+    "answer": "Yes, they are quiet, only have papers on their desks and the teacher is walking around the classroom."
+  },
+  {
+    "question": "Translate into Esperanto: Anna and Tom are not learning Esperanto quickly.",
+    "type": "short_answer",
+    "answer": "Anna kaj Tom ne lernas Esperanton rapide."
+  },
+  {
+    "question": "Translate into Esperanto: The young boy is not sleeping, but the big dog is.",
+    "type": "short_answer",
+    "answer": "La juna knabo ne dormas, sed la granda hundo dormas."
+  },
+  {
+    "question": "Logical sentence completion: Anna kaj Sofia estas…",
+    "type": "multiple_choice",
+    "options": ["…elefantoj.", "…maljuna.", "…virinoj.", "…rapide."],
+    "answer": "…virinoj."
+  },
+  {
+    "question": "Logical sentence completion: …helpas.",
+    "type": "multiple_choice",
+    "options": ["La granda kato…", "La rapida virino…", "La juna knabino ne…", "La bona hundo…"],
+    "answer": "La rapida virino…"
+  },
+  {
+    "question": "True/false: La elefantoj estas malgrandaj.",
+    "type": "boolean",
+    "options": ["Vera", "Malvera"],
+    "answer": "Malvera"
+  },
+  {
+    "question": "Survey: I was not comfortable using the tools",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I was very familiar with the tools from previous experience",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: The tools were highly effective",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I used the tools intensively to solve practice questions",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I believe using the tools is equivalent to cheating",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I think the tools helped me a lot in understanding the material",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I used the tools mostly to get the answer to the practice questions",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: Using the tools did not make me feel engaged with the material",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I felt confident in my ability to use the tool",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I felt like the tools allowed me to explore the topics at a deep level",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I put minimal effort into solving practice questions",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I felt afraid of becoming over‑reliant on the tool to solve the questions",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I was highly motivated to solve the questions",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I feel I was prepared enough for the test",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I found the test to be quite difficult for the level of the lecture and practice questions",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Survey: I was highly motivated to solve the test",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Thoughts on using ChatGPT: I was confident in formulating clear and effective prompts",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Thoughts on using ChatGPT: ChatGPT did not provide useful examples to learn from",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Thoughts on using ChatGPT: More encouragement to use AI in school would make me more likely to use it",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Thoughts on using ChatGPT: I am worried that relying on AI tools might make me lazy or less capable",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Thoughts on using ChatGPT: I feel like ChatGPT hindered my learning of Esperanto",
+    "type": "likert",
+    "options": ["Disagree", "Somewhat disagree", "Somewhat agree", "Agree"],
+    "answer": "Disagree"
+  },
+  {
+    "question": "Would you have preferred to also have access to Google Search and Google Translate during this session?",
+    "type": "multiple_choice",
+    "options": ["Yes", "No", "Other"],
+    "answer": "Yes"
+  },
+  {
+    "question": "Would clearer guidelines on how to use the tools you were allowed to use improve your comfort and learning outcomes?",
+    "type": "multiple_choice",
+    "options": ["Yes", "No"],
+    "answer": "No"
+  },
+  {
+    "question": "If given a choice, which tool would you prefer to use for learning in the future?",
+    "type": "multiple_choice",
+    "options": ["AI tools like ChatGPT", "Google Search", "Other"],
+    "answer": "AI tools like ChatGPT"
+  },
+  {
+    "question": "What challenges, if any, did you face while using the tools provided in this study?",
+    "type": "short_answer",
+    "answer": "No challenges"
+  },
+  {
+    "question": "Is there anything else you’d like to share about your experience in this study?",
+    "type": "short_answer",
+    "answer": "No"
+  }
+]
