@@ -1,8 +1,21 @@
 # Esperanto Learning with ChatGPT: Behavioral Economics Study
 
-## Dataset
+[![HuggingFace Demo](https://img.shields.io/badge/🤗%20Demo-Interactive%20Explorer-blue)](https://huggingface.co/spaces)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-397 ChatGPT conversations from 375 participants learning Esperanto, evaluated using validated frameworks from educational psychology and cognitive science literature.
+> **397 ChatGPT conversations from 375 participants learning Esperanto, evaluated using validated frameworks from educational psychology and cognitive science literature**
+
+🎮 **[Launch Interactive Explorer](https://huggingface.co/spaces)** | 📖 **[Read Full Paper](./README_PREPRINT.md)** | 📊 **[Download Dataset](./data/)**
+
+## Quick Links
+
+- **Interactive Visualizations**: Run `python app.py` for Gradio interface
+- **Full Preprint**: See [README_PREPRINT.md](./README_PREPRINT.md) for academic paper format
+- **Deployment Guide**: See [DEPLOYMENT.md](./DEPLOYMENT.md) for HuggingFace Spaces setup
+- **Literature Review**: See [analysis/LITERATURE_REVIEW_COMPREHENSIVE.md](./analysis/LITERATURE_REVIEW_COMPREHENSIVE.md)
+
+## Dataset
 
 ## Key Findings
 
@@ -77,23 +90,70 @@ Grounded in validated frameworks:
 
 All metrics derived from observable behaviors in conversation transcripts using validated frameworks from educational psychology literature.
 
+## Interactive Demo
+
+```bash
+# Clone repository
+git clone https://github.com/lukketsvane/esperanto-db.git
+cd esperanto-db
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Launch interactive demo
+python app.py
+```
+
+Opens Gradio interface at `http://localhost:7860` with:
+- 📊 Metric distributions across all conversations
+- 🔗 Interactive correlation heatmaps
+- 🧠 Cognitive debt analysis visualizations
+- 👥 Learner profile clustering (PCA + K-means)
+- 🔍 Individual conversation explorer
+
 ## Repository Structure
 
 ```
-data/
-  conversations_final.csv          Complete dataset (397 conversations, 44 columns)
-  prompt_participants_final.csv    Participant data (375 participants)
-figures/                           Publication figures (PNG+PDF)
-scripts/
-  evaluate_conversations.py        Evaluation script
-  analyze_and_visualize.py         Figure generation
-  merge_data.py                    Data merging utility
-raw_data/csn_exports/              Original CSN1-CSN22 exports
-analysis/
-  LITERATURE_REVIEW_COMPREHENSIVE.md  Framework sources (20+ papers)
+esperanto-db/
+├── app.py                          # Gradio interactive demo
+├── requirements.txt                # Python dependencies
+├── README.md                       # This file (quick reference)
+├── README_PREPRINT.md             # Full academic paper format
+├── DEPLOYMENT.md                   # HuggingFace Spaces deployment guide
+├── HF_SPACE_README.md             # HuggingFace Space configuration
+├── data/
+│   ├── conversations_final.csv         # Complete dataset (397 × 44)
+│   └── prompt_participants_final.csv   # Participant metadata (375)
+├── figures/                        # Publication-quality visualizations
+│   ├── metric_distributions.{png,pdf}
+│   ├── correlation_matrix.{png,pdf}
+│   ├── cognitive_debt.{png,pdf}
+│   ├── learner_clusters.{png,pdf}
+│   └── relationships.{png,pdf}
+├── scripts/
+│   ├── evaluate_conversations.py       # LLM evaluation script
+│   ├── analyze_and_visualize.py        # Statistical analysis
+│   └── merge_data.py                   # Data processing
+├── analysis/
+│   └── LITERATURE_REVIEW_COMPREHENSIVE.md  # 20+ framework sources
+└── raw_data/                       # Original CSN exports (archived)
 ```
 
-## Citations
+## Citation
+
+If you use this dataset or methodology in your research, please cite:
+
+```bibtex
+@dataset{esperanto_chatgpt_2024,
+  title={Esperanto Learning with ChatGPT: A Behavioral Economics Study},
+  author={[Your Name]},
+  year={2024},
+  publisher={GitHub},
+  url={https://github.com/lukketsvane/esperanto-db}
+}
+```
+
+## Key References
 
 **MIT Cognitive Debt Study**:
 MIT Media Lab (2025). Your Brain on ChatGPT: Accumulation of cognitive debt when using an AI assistant for essay writing task. arXiv:2506.08872
@@ -106,4 +166,16 @@ MIT Media Lab (2025). Your Brain on ChatGPT: Accumulation of cognitive debt when
 - Kahu, E. R., et al. (2018). Research in Higher Education, 60(2), 134-159.
 - Liu, O. L., et al. (2014). ETS Research Report Series.
 
-See analysis/LITERATURE_REVIEW_COMPREHENSIVE.md for complete bibliography.
+See [analysis/LITERATURE_REVIEW_COMPREHENSIVE.md](./analysis/LITERATURE_REVIEW_COMPREHENSIVE.md) for complete bibliography.
+
+## License
+
+**MIT License** - Free to use, modify, and distribute with attribution.
+
+---
+
+📖 **For full academic paper**: See [README_PREPRINT.md](./README_PREPRINT.md)
+🚀 **Deploy to HuggingFace**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
+💻 **Run interactive demo**: `python app.py`
+
+*Built with ❤️ for open science and AI-assisted education research*
