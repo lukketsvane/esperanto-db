@@ -16,7 +16,12 @@
 
 Learners show moderate engagement patterns with above-average memory retention and metacognitive awareness.
 
-### Learning Patterns
+### Learning Patterns & Copy-Paste Behavior (March 2026 Update)
+
+**The "Black Box" Effect**: Analysis of the `copypaste_dummy` metric against learning styles reveals a stark contrast in AI utilization. Participants who heavily copy-pasted quiz instructions (Score 5) exhibited high **Substitute Learning** (avg ~4.1) and extremely low **Complement Learning** (avg ~1.0). They treated the AI exclusively as a translation engine, bypassing cognitive effort. 
+Conversely, participants with low copy-paste scores engaged in high complementary learning, actively asking the AI for grammatical explanations and structural rules.
+
+*(See `figures/copypaste_impact_bar.png` and `figures/substitute_vs_complement_scatter.png` for visual breakdowns of this divergence).*
 
 **Declarative Bias**: 50% of learners favor fact/translation requests over procedural understanding (grammar, usage rules).
 
