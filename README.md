@@ -85,6 +85,12 @@ We employ a parameterized single-script approach (`scripts/evaluate_conversation
 1. **Implicit Mode (`prompts/system_implicit.txt`)**: Relies on the LLM's latent, zero-shot understanding of the psychological variables.
 2. **Explicit Mode (`prompts/system_explicit.txt`)**: Provides the LLM with strict, theoretically grounded definitions for every metric (e.g., `germane_load`, `metacog_planning`).
 
+**Explicit vs. Implicit Performance:**
+Testing both prompt modes revealed critical differences in AI sensitivity to specific "low effort" behaviors:
+- **Explicit Prompt**: Captured severe copy-pasting (Mean Score: 2.23) and high substitute learning (Mean: 3.20).
+- **Implicit Prompt**: Underreported copy-pasting (Mean: 1.31) and failed to penalize substitute learning accurately (Mean: 2.13).
+*Conclusion:* Explicit prompting (providing the LLM with clear definitions) yields significantly sharper separation and identification of "low effort" learning behavior than zero-shot inference. This validates the necessity of strict, literature-grounded rubrics in LLM-as-a-judge pipelines.
+
 ### Copy-Paste Detection: Dual Approach
 To ensure data integrity regarding "low-effort" AI usage, we employ two distinct methodologies:
 1. **Programmatic Matching (`copypaste_score_auto`)**: A Python-based string matching algorithm that checks user messages against a library of known practice questions (e.g., "Tom ne dormas"). This provides a verbatim baseline for copying.

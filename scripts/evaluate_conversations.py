@@ -217,7 +217,8 @@ def main():
     results_df.to_csv(output_file, index=False)
 
     print(f"\nComplete: {len(results_df)} conversations")
-    print(f"Errors: {len(results_df[results_df.get('error', '').astype(str) != ''])}")
+    error_count = len(results_df[results_df['error'].notna()]) if 'error' in results_df.columns else 0
+    print(f"Errors: {error_count}")
     print(f"Saved: {output_file}")
 
     composite_metrics = ["cognitive_engagement", "metacognitive_awareness", "linguistic_production",

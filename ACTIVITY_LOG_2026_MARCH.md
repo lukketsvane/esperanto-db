@@ -20,6 +20,13 @@ This log tracks the updates made to the Esperanto learning conversation evaluati
     - `system_implicit.txt`: Tests the LLM's zero-shot, latent understanding of the variables.
     - `system_explicit.txt`: Tests the LLM using strict, theoretically grounded definitions for every variable.
 
+### Dual Prompt Findings (Implicit vs. Explicit)
+Running both evaluation modes yielded striking differences, validating the use of explicit rubrics in LLM-as-a-judge pipelines:
+- **Explicit Prompting**: Mean Copy-Paste: 2.23 | Mean Substitute Learning: 3.20. (Strong inverse correlation with Complement Learning: **r = -0.54**).
+- **Implicit Prompting**: Mean Copy-Paste: 1.31 | Mean Substitute Learning: 2.13. (Failed to accurately identify substitutive behaviors, clustering scores too tightly).
+
+By explicitly defining variables like `copypaste_dummy` and `substitute_learning`, the LLM was able to accurately penalize low-effort interactions, whereas zero-shot (implicit) inference drastically underreported these behaviors.
+
 ## 3. Programmatic Behavior Detection
 - **Auto-Detection Script**: Created `scripts/detect_copypaste.py`.
     - **Methodology**: String matching against a library of known practice questions (e.g., "Tom ne dormas", "La hundo ne flugas").
