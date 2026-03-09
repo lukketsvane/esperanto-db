@@ -24,7 +24,25 @@ This log tracks the updates made to the Esperanto learning conversation evaluati
 - **Comparison & Validation**: Created `scripts/compare_copypaste.py` to align LLM "judgment" with programmatic "fact."
     - **Insight**: The LLM (GPT/Gemini) is superior at catching "structural" copying, while the script provides a hard baseline for "verbatim" copying.
 
-## 4. Final Outputs
+## 4. Key Findings: Copy-Pasting vs. Learning Quality
+
+### Dual Methodology Results
+- **Auto-Detection (`copypaste_score_auto`)**: Captured verbatim copy-pasting of specific task questions. Found 59 instances of copying.
+- **LLM Assessment (`copypaste_dummy`)**: Captured broader "structural" copying. Found 88 conversations with high copy-pasting behavior (Scores 4-5).
+- **The Gap**: Verbatim auto-matching often missed participants who paraphrased or slightly modified questions, while the LLM was able to recognize the intent of copying.
+
+### Correlation with Learning Approach
+The analysis reveals a strong inverse relationship between copying behavior and cognitive engagement:
+1. **The "Low Effort" Profile**: High copy-pasting (`copypaste_dummy` >= 4) is strongly correlated with **Substitutive Learning** (r = 0.22, but significantly lower Complement scores). 
+2. **Substitutive Bias**: In high-copy conversations (Score 5), the **Complement Learning score drops to ~1.0**. These participants use AI exclusively as a "black box" to provide answers without seeking explanation or deeper understanding.
+3. **The Inverse Correlation**: A significant negative correlation (**r = -0.54**) exists between `copypaste_dummy` and `complement_learning`. This confirms that copy-pasting is a behavioral proxy for low cognitive engagement.
+
+### Participant Segmentation
+- **Type A: Active Learners**: Low copy-paste scores, high `complement_learning`. These students type their own queries and ask "why."
+- **Type B: Translators/Copy-Pasters**: High copy-paste scores, high `substitute_learning`. These students treat AI as a translation tool to bypass the lesson.
+- **Type C: Strategic Copiers**: High `copypaste_score_auto` but moderate `complement_learning`. Some students copy questions verbatim but then follow up with "Can you explain this?" (Strategic use of AI as a tutor).
+
+## 5. Final Outputs
 - **`conversations_evaluated_explicit.csv`**: Raw LLM evaluation results using the new metrics.
 - **`copypaste_auto_detection.csv`**: Programmatic match scores.
 - **`conversations_evaluated_final.csv`**: Consolidated dataset merging all psychological, linguistic, and behavioral metrics (including the new auto-detection scores).
