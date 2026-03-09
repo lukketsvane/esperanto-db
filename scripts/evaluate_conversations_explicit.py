@@ -3,17 +3,20 @@ import json
 import pandas as pd
 import os
 from pathlib import Path
-from openai import OpenAI
+from google import genai
+from google.genai import types
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
+import time
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY environment variable not set")
-client = OpenAI(api_key=OPENAI_API_KEY)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable not set")
 
-MODEL = "gpt-4o"
+client = genai.Client(api_key=GEMINI_API_KEY)
+MODEL = "gemini-3.1-flash-lite-preview"
+
 progress_lock = threading.Lock()
 progress_counter = {"count": 0, "total": 0}
 
@@ -38,6 +41,29 @@ EVALUATION_PROMPT = """Rate this Esperanto learning conversation (1-5 scale). Re
   "complement_learning": <1-5>
 }"""
 
+SYSTEM_PROMPT = """You are an expert evaluator of learning conversations.
+Rate the given Esperanto learning conversation from 1 to 5 on the following variables. Return valid JSON.
+
+Variable Definitions:
+- germane_load (1-5): Extent to which the user focuses on meaning, deep understanding, and schema construction rather than superficial features.
+- metacog_planning (1-5): Extent to which the user plans their learning (e.g., setting goals, asking for a structured lesson).
+- metacog_monitoring (1-5): Extent to which the user monitors their own understanding (e.g., "Wait, I didn't get that").
+- metacog_evaluation (1-5): Extent to which the user evaluates their learning progress or outcomes.
+- ling_quantity (1-5): Amount of Esperanto language produced by the user.
+- ling_accuracy (1-5): Accuracy of the Esperanto language produced by the user.
+- self_regulation (1-5): User's ability to self-regulate their learning process and emotions.
+- critical_thinking (1-5): Extent to which the user demonstrates critical analysis, reasoning, and questioning.
+- engagement_cognitive (1-5): User's cognitive focus and deep mental effort on the task.
+- engagement_affective (1-5): User's emotional engagement, interest, or motivation in the learning.
+- question_sophistication (1-5): Complexity and depth of questions asked by the user (1=basic facts, 5=complex nuances).
+- iterative_depth (1-5): Extent to which the user iterates on previous responses and dives deeper into topics.
+- memory_retention (1-5): Indications of the user remembering and applying past learning/vocabulary in the conversation.
+- ownership (1-5): Extent to which the user takes control and leads the learning process.
+- copypaste_dummy (1-5): 1 = User types their own fully original prompts, 5 = User clearly copy-pasted assignment or quiz questions directly into the chat without adding their own thought.
+- substitute_learning (1-5): 1-5 scale on whether the AI is used to replace user effort (e.g., "just give me the answer/translation"). Higher score means higher reliance on AI as a substitute for learning.
+- complement_learning (1-5): 1-5 scale on whether the AI is used to augment user effort (e.g., "explain why my answer is wrong"). Higher score means better complementary use of AI.
+"""
+
 def extract_all_messages(conversation_data):
     messages = []
     if 'mapping' in conversation_data:
@@ -59,20 +85,30 @@ def extract_all_messages(conversation_data):
         messages = [x[1] for x in nodes_with_time]
     return messages
 
-def call_openai(all_messages):
+def call_gemini(all_messages):
     user_text = "\n\n".join([f"Message {i+1}: {msg}" for i, msg in enumerate(all_messages)])
+    
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text=f"{SYSTEM_PROMPT}\n\n{user_text}\n\n{EVALUATION_PROMPT}"),
+            ],
+        ),
+    ]
+    
+    config = types.GenerateContentConfig(
+        response_mime_type="application/json",
+        temperature=0.1
+    )
 
     try:
-        response = client.chat.completions.create(
+        response = client.models.generate_content(
             model=MODEL,
-            messages=[
-                {"role": "system", "content": "Rate learning conversations. Return valid JSON."},
-                {"role": "user", "content": f"{user_text}\n\n{EVALUATION_PROMPT}"}
-            ],
-            temperature=0.1,
-            response_format={"type": "json_object"}
+            contents=contents,
+            config=config,
         )
-        return json.loads(response.choices[0].message.content)
+        return json.loads(response.text)
     except Exception as e:
         return {"error": str(e)}
 
@@ -90,7 +126,9 @@ def evaluate_conversation(args):
                 "error": "No messages found"
             }
 
-        result = call_openai(all_messages)
+        # Rate limiting: add a small delay to avoid hitting rate limits
+        time.sleep(0.1)
+        result = call_gemini(all_messages)
 
         if "error" in result:
             return {
@@ -107,6 +145,7 @@ def evaluate_conversation(args):
         }
         output.update(result)
 
+        # Composite metrics
         output["cognitive_engagement"] = result.get("engagement_cognitive", 3.0)
         output["metacognitive_awareness"] = np.mean([
             result.get("metacog_planning", 3.0),
@@ -162,7 +201,7 @@ def load_conversation_from_csn(csn_folder):
         return []
 
 def main():
-    print("Running validated evaluation on all conversations")
+    print("Running EXPLICIT validated evaluation on all conversations")
     print(f"Model: {MODEL}")
     
     variables = [
@@ -172,7 +211,7 @@ def main():
         "iterative_depth", "memory_retention", "ownership", "copypaste_dummy", 
         "substitute_learning", "complement_learning"
     ]
-    print(f"Variables to be evaluated: {', '.join(variables)}")
+    print(f"Variables to be evaluated explicitly: {', '.join(variables)}")
     print()
 
     base_dir = Path(__file__).parent.parent.resolve()
@@ -194,7 +233,8 @@ def main():
     print(f"Evaluating {len(all_conversations)} conversations\n")
 
     all_results = []
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    # Using smaller pool size to avoid rate limiting for Gemini
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {executor.submit(evaluate_conversation, conv_args): conv_args
                    for conv_args in all_conversations}
 
@@ -203,7 +243,7 @@ def main():
             all_results.append(result)
 
     results_df = pd.DataFrame(all_results)
-    output_file = base_dir / "conversations_evaluated.csv"
+    output_file = base_dir / "conversations_evaluated_explicit.csv"
     results_df.to_csv(output_file, index=False)
 
     print(f"\nComplete: {len(results_df)} conversations")

@@ -56,24 +56,32 @@ Grounded in validated frameworks:
 - Engagement: Kahu et al. 2018 (HESES)
 - Critical Thinking: Liu et al. 2014
 - Cognitive Debt: MIT Media Lab 2025
+- **Copy-Paste & AI Usage**: (New for March 2026 update)
 
-**Results**:
-- cognitive_engagement: 3.79 ± 0.52
-- metacognitive_awareness: 3.22 ± 0.52
-- linguistic_production: 3.63 ± 0.62
-- self_directedness: 2.96 ± 0.49
-- iterative_refinement: 2.91 ± 0.55
-- memory_retention: 3.68 ± 0.57
-- query_sophistication: 2.89 ± 0.55
-- agency_ownership: 3.68 ± 0.57
-- overall_learning_quality: 3.22 ± 0.46
+**Results (March 2026 Update)**:
+- cognitive_engagement: 2.44 ± 1.00
+- metacognitive_awareness: 1.30 ± 0.51
+- linguistic_production: 2.63 ± 0.83
+- self_directedness: 2.49 ± 0.99
+- iterative_refinement: 2.21 ± 1.03
+- memory_retention: 2.66 ± 1.23
+- query_sophistication: 1.63 ± 0.72
+- agency_ownership: 2.27 ± 0.98
+- overall_learning_quality: 2.11 ± 0.81
 
-## Methodology
+## Methodology & Copy-Paste Detection
 
-**Model**: GPT-3.5-turbo, temperature 0.1
-**Success Rate**: 98% (389/397 conversations evaluated)
-**Processing**: Concurrent evaluation (8 workers), cost-optimized
-**Cost**: ~$1-2 total
+### LLM Evaluation
+**Model**: `gemini-3.1-flash-lite-preview` (Updated March 2026)
+**Context**: Full-text extraction of both **User** and **Assistant** messages to capture instructional flow.
+**Granularity**: Explicitly defined variables in system instructions for high inter-rater reliability.
+
+### Copy-Paste Detection: Dual Approach
+To ensure data integrity regarding "low-effort" AI usage, we employ two distinct methodologies:
+1. **Programmatic Matching (`copypaste_score_auto`)**: A Python-based string matching algorithm that checks user messages against a library of known practice questions (e.g., "Tom ne dormas"). This provides a verbatim baseline for copying.
+2. **LLM Judgment (`copypaste_dummy`)**: A GPT/Gemini-based qualitative assessment that identifies "structural" copy-pasting—where a user copies the intent, format, or multi-part instructions that might bypass simple string matching.
+
+These two scores are consolidated in `conversations_evaluated_final.csv` to allow for multi-dimensional filtering of participant effort.
 
 All metrics derived from observable behaviors in conversation transcripts using validated frameworks from educational psychology literature.
 
