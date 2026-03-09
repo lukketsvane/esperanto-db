@@ -8,14 +8,17 @@ This log tracks the updates made to the Esperanto learning conversation evaluati
 - **Primary Data Source**: `data/01_full_sample_with_prompts.csv` (contains original practice questions and participant metadata).
 - **Scope**: 397 unique ChatGPT conversations across 375 participants.
 
-## 2. Evaluation Script Enhancements
+## 2. Evaluation Script Enhancements & LLM-as-a-Judge Architecture
 - **Full Context Extraction**: Updated `extract_all_messages()` to capture both **USER** and **ASSISTANT** messages. This provides the evaluator with the full conversational flow, which is critical for understanding "complementary" vs "substitutive" learning.
 - **Model Upgrade**: Transitioned from `gpt-3.5-turbo` to `gemini-3.1-flash-lite-preview` for high-throughput, high-reasoning evaluation.
 - **New Metrics (1-5 Scale)**:
     - `copypaste_dummy`: Frequency of verbatim or near-verbatim copying of task instructions.
     - `substitute_learning`: Using AI to replace cognitive effort (e.g., "translate this for me").
     - `complement_learning`: Using AI to augment effort (e.g., "explain why this grammar is used").
-- **Explicit Prompting**: Created `scripts/evaluate_conversations_explicit.py` which defines every variable in the system prompt to ensure high inter-rater reliability from the LLM.
+- **Unified Evaluation Script (`scripts/evaluate_conversations.py`)**: Consolidated the evaluation logic into a single parameterized script that can run different prompt types.
+- **Externalized Prompts (`prompts/`)**: Following LLM-as-a-Judge best practices (Zheng et al., 2023), we isolated system instructions into external files to test inter-rater reliability based on prompt specificity:
+    - `system_implicit.txt`: Tests the LLM's zero-shot, latent understanding of the variables.
+    - `system_explicit.txt`: Tests the LLM using strict, theoretically grounded definitions for every variable.
 
 ## 3. Programmatic Behavior Detection
 - **Auto-Detection Script**: Created `scripts/detect_copypaste.py`.
