@@ -69,12 +69,16 @@ Grounded in validated frameworks:
 - agency_ownership: 2.27 ± 0.98
 - overall_learning_quality: 2.11 ± 0.81
 
-## Methodology & Copy-Paste Detection
+## Methodology & LLM-as-a-Judge Design
 
 ### LLM Evaluation
 **Model**: `gemini-3.1-flash-lite-preview` (Updated March 2026)
 **Context**: Full-text extraction of both **User** and **Assistant** messages to capture instructional flow.
-**Granularity**: Explicitly defined variables in system instructions for high inter-rater reliability.
+
+**Prompting Architecture**:
+We employ a parameterized single-script approach (`scripts/evaluate_conversations.py`) that reads system instructions from external files (`prompts/`). This allows us to compare two modes of LLM evaluation, adhering to current LLM-as-a-Judge best practices (e.g., MT-Bench / Zheng et al., 2023, which demonstrate that explicit rubrics significantly increase inter-rater reliability compared to zero-shot inference):
+1. **Implicit Mode (`prompts/system_implicit.txt`)**: Relies on the LLM's latent, zero-shot understanding of the psychological variables.
+2. **Explicit Mode (`prompts/system_explicit.txt`)**: Provides the LLM with strict, theoretically grounded definitions for every metric (e.g., `germane_load`, `metacog_planning`).
 
 ### Copy-Paste Detection: Dual Approach
 To ensure data integrity regarding "low-effort" AI usage, we employ two distinct methodologies:
