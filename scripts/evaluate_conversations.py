@@ -13,7 +13,7 @@ if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable not set")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-MODEL = "gpt-3.5-turbo"
+MODEL = "gpt-4o"
 progress_lock = threading.Lock()
 progress_counter = {"count": 0, "total": 0}
 
@@ -32,25 +32,35 @@ EVALUATION_PROMPT = """Rate this Esperanto learning conversation (1-5 scale). Re
   "question_sophistication": <1-5>,
   "iterative_depth": <1-5>,
   "memory_retention": <1-5>,
-  "ownership": <1-5>
+  "ownership": <1-5>,
+  "copypaste_dummy": <1-5>,
+  "substitute_learning": <1-5>,
+  "complement_learning": <1-5>
 }"""
 
-def extract_user_messages(conversation_data):
-    user_messages = []
+def extract_all_messages(conversation_data):
+    messages = []
     if 'mapping' in conversation_data:
+        nodes_with_time = []
         for node_id, node in conversation_data['mapping'].items():
-            if node.get('message') and node['message'].get('author', {}).get('role') == 'user':
-                content = node['message'].get('content', {})
+            msg = node.get('message')
+            if msg and msg.get('author', {}).get('role') in ['user', 'assistant']:
+                role = msg['author']['role']
+                content = msg.get('content', {})
+                create_time = msg.get('create_time', 0) or 0
                 if isinstance(content, dict) and 'parts' in content:
                     parts = content['parts']
                     if isinstance(parts, list) and len(parts) > 0:
                         text = parts[0]
-                        if text and text.strip():
-                            user_messages.append(text.strip())
-    return user_messages
+                        if text and isinstance(text, str) and text.strip():
+                            nodes_with_time.append((create_time, f"{role.upper()}: {text.strip()}"))
+        # Sort by creation time to reconstruct conversation flow
+        nodes_with_time.sort(key=lambda x: x[0])
+        messages = [x[1] for x in nodes_with_time]
+    return messages
 
-def call_openai(user_messages):
-    user_text = "\n\n".join([f"Message {i+1}: {msg}" for i, msg in enumerate(user_messages)])
+def call_openai(all_messages):
+    user_text = "\n\n".join([f"Message {i+1}: {msg}" for i, msg in enumerate(all_messages)])
 
     try:
         response = client.chat.completions.create(
@@ -70,30 +80,30 @@ def evaluate_conversation(args):
     conv_data, conv_id, csn_name = args
 
     try:
-        user_messages = extract_user_messages(conv_data)
+        all_messages = extract_all_messages(conv_data)
 
-        if not user_messages:
+        if not all_messages:
             return {
                 "conversation_id": conv_id,
                 "csn": csn_name,
-                "n_user_messages": 0,
-                "error": "No user messages"
+                "n_messages": 0,
+                "error": "No messages found"
             }
 
-        result = call_openai(user_messages)
+        result = call_openai(all_messages)
 
         if "error" in result:
             return {
                 "conversation_id": conv_id,
                 "csn": csn_name,
-                "n_user_messages": len(user_messages),
+                "n_messages": len(all_messages),
                 "error": result["error"]
             }
 
         output = {
             "conversation_id": conv_id,
             "csn": csn_name,
-            "n_user_messages": len(user_messages)
+            "n_messages": len(all_messages)
         }
         output.update(result)
 
@@ -154,9 +164,18 @@ def load_conversation_from_csn(csn_folder):
 def main():
     print("Running validated evaluation on all conversations")
     print(f"Model: {MODEL}")
+    
+    variables = [
+        "germane_load", "metacog_planning", "metacog_monitoring", "metacog_evaluation", 
+        "ling_quantity", "ling_accuracy", "self_regulation", "critical_thinking", 
+        "engagement_cognitive", "engagement_affective", "question_sophistication", 
+        "iterative_depth", "memory_retention", "ownership", "copypaste_dummy", 
+        "substitute_learning", "complement_learning"
+    ]
+    print(f"Variables to be evaluated: {', '.join(variables)}")
     print()
 
-    base_dir = Path("/home/user/esperanto-db")
+    base_dir = Path(__file__).parent.parent.resolve()
     csn_base = base_dir / "raw_data" / "csn_exports"
     if not csn_base.exists():
         csn_base = base_dir
