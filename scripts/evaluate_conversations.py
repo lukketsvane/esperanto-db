@@ -3,100 +3,134 @@ import json
 import pandas as pd
 import os
 from pathlib import Path
-from openai import OpenAI
+from google import genai
+from google.genai import types
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
+import time
+import argparse
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY environment variable not set")
-client = OpenAI(api_key=OPENAI_API_KEY)
+# --- Configure CLI Arguments ---
+parser = argparse.ArgumentParser(description="Evaluate Esperanto conversations using LLM as a Judge.")
+parser.add_argument(
+    '--prompt-type', 
+    choices=['implicit', 'explicit'], 
+    default='explicit',
+    help='Choose the system prompt type: "implicit" (no definitions) or "explicit" (strict rubrics). Defaults to "explicit".'
+)
+parser.add_argument(
+    '--ids',
+    nargs='+',
+    help='Specific conversation IDs to evaluate (space-separated). If omitted, evaluates all.'
+)
+args = parser.parse_args()
 
-MODEL = "gpt-3.5-turbo"
+# --- Initialize Gemini ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable not set")
+
+client = genai.Client(api_key=GEMINI_API_KEY)
+MODEL = "gemini-3.1-flash-lite-preview"
+
+# --- Load Prompts ---
+base_dir = Path(__file__).parent.parent.resolve()
+prompt_dir = base_dir / "prompts"
+
+try:
+    with open(prompt_dir / f"system_{args.prompt_type}.txt", "r", encoding="utf-8") as f:
+        SYSTEM_PROMPT = f.read()
+    with open(prompt_dir / "user_schema.txt", "r", encoding="utf-8") as f:
+        USER_SCHEMA = f.read()
+except FileNotFoundError as e:
+    raise FileNotFoundError(f"Missing prompt file: {e}")
+
 progress_lock = threading.Lock()
 progress_counter = {"count": 0, "total": 0}
 
-EVALUATION_PROMPT = """Rate this Esperanto learning conversation (1-5 scale). Return JSON:
-{
-  "germane_load": <1-5>,
-  "metacog_planning": <1-5>,
-  "metacog_monitoring": <1-5>,
-  "metacog_evaluation": <1-5>,
-  "ling_quantity": <1-5>,
-  "ling_accuracy": <1-5>,
-  "self_regulation": <1-5>,
-  "critical_thinking": <1-5>,
-  "engagement_cognitive": <1-5>,
-  "engagement_affective": <1-5>,
-  "question_sophistication": <1-5>,
-  "iterative_depth": <1-5>,
-  "memory_retention": <1-5>,
-  "ownership": <1-5>
-}"""
-
-def extract_user_messages(conversation_data):
-    user_messages = []
+def extract_all_messages(conversation_data):
+    messages = []
     if 'mapping' in conversation_data:
+        nodes_with_time = []
         for node_id, node in conversation_data['mapping'].items():
-            if node.get('message') and node['message'].get('author', {}).get('role') == 'user':
-                content = node['message'].get('content', {})
+            msg = node.get('message')
+            if msg and msg.get('author', {}).get('role') in ['user', 'assistant']:
+                role = msg['author']['role']
+                content = msg.get('content', {})
+                create_time = msg.get('create_time', 0) or 0
                 if isinstance(content, dict) and 'parts' in content:
                     parts = content['parts']
                     if isinstance(parts, list) and len(parts) > 0:
                         text = parts[0]
-                        if text and text.strip():
-                            user_messages.append(text.strip())
-    return user_messages
+                        if text and isinstance(text, str) and text.strip():
+                            nodes_with_time.append((create_time, f"{role.upper()}: {text.strip()}"))
+        # Sort by creation time to reconstruct conversation flow
+        nodes_with_time.sort(key=lambda x: x[0])
+        messages = [x[1] for x in nodes_with_time]
+    return messages
 
-def call_openai(user_messages):
-    user_text = "\n\n".join([f"Message {i+1}: {msg}" for i, msg in enumerate(user_messages)])
+def call_gemini(all_messages):
+    user_text = "\n\n".join([f"Message {i+1}: {msg}" for i, msg in enumerate(all_messages)])
+    
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text=f"{SYSTEM_PROMPT}\n\n[CONVERSATION START]\n{user_text}\n[CONVERSATION END]\n\n{USER_SCHEMA}"),
+            ],
+        ),
+    ]
+    
+    config = types.GenerateContentConfig(
+        response_mime_type="application/json",
+        temperature=0.1
+    )
 
     try:
-        response = client.chat.completions.create(
+        response = client.models.generate_content(
             model=MODEL,
-            messages=[
-                {"role": "system", "content": "Rate learning conversations. Return valid JSON."},
-                {"role": "user", "content": f"{user_text}\n\n{EVALUATION_PROMPT}"}
-            ],
-            temperature=0.1,
-            response_format={"type": "json_object"}
+            contents=contents,
+            config=config,
         )
-        return json.loads(response.choices[0].message.content)
+        return json.loads(response.text)
     except Exception as e:
         return {"error": str(e)}
 
-def evaluate_conversation(args):
-    conv_data, conv_id, csn_name = args
+def evaluate_conversation(conv_args):
+    conv_data, conv_id, csn_name = conv_args
 
     try:
-        user_messages = extract_user_messages(conv_data)
+        all_messages = extract_all_messages(conv_data)
 
-        if not user_messages:
+        if not all_messages:
             return {
                 "conversation_id": conv_id,
                 "csn": csn_name,
-                "n_user_messages": 0,
-                "error": "No user messages"
+                "n_messages": 0,
+                "error": "No messages found"
             }
 
-        result = call_openai(user_messages)
+        # Rate limiting mitigation
+        time.sleep(0.1)
+        result = call_gemini(all_messages)
 
         if "error" in result:
             return {
                 "conversation_id": conv_id,
                 "csn": csn_name,
-                "n_user_messages": len(user_messages),
+                "n_messages": len(all_messages),
                 "error": result["error"]
             }
 
         output = {
             "conversation_id": conv_id,
             "csn": csn_name,
-            "n_user_messages": len(user_messages)
+            "n_messages": len(all_messages)
         }
         output.update(result)
 
+        # Composite metrics
         output["cognitive_engagement"] = result.get("engagement_cognitive", 3.0)
         output["metacognitive_awareness"] = np.mean([
             result.get("metacog_planning", 3.0),
@@ -152,11 +186,9 @@ def load_conversation_from_csn(csn_folder):
         return []
 
 def main():
-    print("Running validated evaluation on all conversations")
+    print(f"Running LLM Evaluation - Mode: {args.prompt_type.upper()}")
     print(f"Model: {MODEL}")
-    print()
 
-    base_dir = Path("/home/user/esperanto-db")
     csn_base = base_dir / "raw_data" / "csn_exports"
     if not csn_base.exists():
         csn_base = base_dir
@@ -169,13 +201,19 @@ def main():
         conversations = load_conversation_from_csn(csn_folder)
         for conv_data in conversations:
             conv_id = conv_data.get('id', f"{csn_name}_unknown")
+            if args.ids and conv_id not in args.ids:
+                continue
             all_conversations.append((conv_data, conv_id, csn_name))
 
     progress_counter["total"] = len(all_conversations)
+    if progress_counter["total"] == 0:
+        print("No conversations to evaluate. Check IDs or CSN folders.")
+        return
+    
     print(f"Evaluating {len(all_conversations)} conversations\n")
 
     all_results = []
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {executor.submit(evaluate_conversation, conv_args): conv_args
                    for conv_args in all_conversations}
 
@@ -184,11 +222,14 @@ def main():
             all_results.append(result)
 
     results_df = pd.DataFrame(all_results)
-    output_file = base_dir / "conversations_evaluated.csv"
+    
+    # Save file with dynamic name based on prompt type
+    output_file = base_dir / f"conversations_evaluated_{args.prompt_type}.csv"
     results_df.to_csv(output_file, index=False)
 
     print(f"\nComplete: {len(results_df)} conversations")
-    print(f"Errors: {len(results_df[results_df.get('error', '') != ''])}")
+    error_count = len(results_df[results_df['error'].notna()]) if 'error' in results_df.columns else 0
+    print(f"Errors: {error_count}")
     print(f"Saved: {output_file}")
 
     composite_metrics = ["cognitive_engagement", "metacognitive_awareness", "linguistic_production",
