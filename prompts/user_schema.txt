@@ -14,7 +14,6 @@ Rate this Esperanto learning conversation (1-5 scale). Return ONLY valid JSON ma
   "iterative_depth": <1-5>,
   "memory_retention": <1-5>,
   "ownership": <1-5>,
-  "copypaste_dummy": <1-5>,
   "substitute_learning": <1-5>,
   "complement_learning": <1-5>
 }

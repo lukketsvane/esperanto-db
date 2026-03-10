@@ -16,6 +16,11 @@ warnings.filterwarnings('ignore')
 
 # ── Load all data sources ────────────────────────────────────────────────────
 df_eval = pd.read_csv('conversations_evaluated_final.csv')
+df_auto = pd.read_csv('copypaste_auto_detection.csv')
+if 'copypaste_score_auto' in df_eval.columns:
+    df_eval = df_eval.drop(columns=['copypaste_score_auto'])
+df_eval = df_eval.merge(df_auto[['conversation_id', 'copypaste_score_auto']], on='conversation_id', how='left')
+
 df_main = pd.read_csv('data/01_full_sample_with_prompts.csv', on_bad_lines='skip')
 df_conv = pd.read_csv('data/conversations_final.csv')
 
@@ -32,7 +37,7 @@ print()
 df_direct = df_eval.merge(
     df_main[['conversation_id', 'testscore', 'treatment', 'gender', 'highgpa']],
     on='conversation_id', how='inner'
-).dropna(subset=['copypaste_dummy', 'testscore'])
+).dropna(subset=['copypaste_score_auto', 'testscore'])
 
 print(f"Direct merge (existing links): {len(df_direct)} participants")
 
@@ -108,12 +113,12 @@ print(f"New matches via CSN+session:    {len(new_matches)} participants")
 if new_matches:
     df_new = pd.DataFrame(new_matches)
     df_new_merged = df_eval.merge(df_new, on='conversation_id', how='inner')
-    df_new_merged = df_new_merged.dropna(subset=['copypaste_dummy', 'testscore'])
+    df_new_merged = df_new_merged.dropna(subset=['copypaste_score_auto', 'testscore'])
     df = pd.concat([df_direct, df_new_merged], ignore_index=True)
 else:
     df = df_direct
 
-df['copypaste_dummy'] = df['copypaste_dummy'].astype(int)
+df['copypaste_score_auto'] = df['copypaste_score_auto'].astype(int)
 
 # ── Step 3: Deduplicate (some conversations may share same survey row) ────────
 df = df.drop_duplicates(subset=['conversation_id'], keep='first')
@@ -129,7 +134,7 @@ print(f"Gap: {375 - len(df)} participants had no survey test score")
 print()
 
 # ── Summary statistics ────────────────────────────────────────────────────────
-summary = df.groupby('copypaste_dummy')['testscore'].agg(['mean', 'std', 'count', 'median'])
+summary = df.groupby('copypaste_score_auto')['testscore'].agg(['mean', 'std', 'count', 'median'])
 summary.columns = ['Mean', 'Std', 'N', 'Median']
 summary['SE'] = summary['Std'] / np.sqrt(summary['N'])
 print("Mean test score by copy-paste level:")
@@ -137,8 +142,8 @@ print(summary.round(2).to_string())
 print()
 
 # Overall correlation
-r, p = stats.pearsonr(df['copypaste_dummy'], df['testscore'])
-rho, p_rho = stats.spearmanr(df['copypaste_dummy'], df['testscore'])
+r, p = stats.pearsonr(df['copypaste_score_auto'], df['testscore'])
+rho, p_rho = stats.spearmanr(df['copypaste_score_auto'], df['testscore'])
 print(f"Pearson r = {r:.3f}, p = {p:.4f}")
 print(f"Spearman ρ = {rho:.3f}, p = {p_rho:.4f}")
 print()
@@ -192,7 +197,7 @@ ax1.spines[['top', 'right']].set_visible(False)
 
 # ─ Panel B: Box plot ──────────────────────────────────────────────────────────
 ax2 = fig.add_subplot(gs[0, 1])
-groups = [df[df['copypaste_dummy'] == l]['testscore'].dropna().values for l in LEVELS]
+groups = [df[df['copypaste_score_auto'] == l]['testscore'].dropna().values for l in LEVELS]
 
 bp = ax2.boxplot(groups, patch_artist=True, notch=False,
                  medianprops=dict(color='white', linewidth=2),
@@ -215,12 +220,12 @@ ax2.spines[['top', 'right']].set_visible(False)
 ax3 = fig.add_subplot(gs[1, 0])
 
 jitter = np.random.RandomState(42).uniform(-0.18, 0.18, len(df))
-colors_scatter = [PALETTE[l] for l in df['copypaste_dummy']]
-ax3.scatter(df['copypaste_dummy'] + jitter, df['testscore'],
+colors_scatter = [PALETTE[l] for l in df['copypaste_score_auto']]
+ax3.scatter(df['copypaste_score_auto'] + jitter, df['testscore'],
             c=colors_scatter, s=28, alpha=0.55, edgecolors='none')
 
 # Regression line
-slope, intercept, *_ = stats.linregress(df['copypaste_dummy'], df['testscore'])
+slope, intercept, *_ = stats.linregress(df['copypaste_score_auto'], df['testscore'])
 x_line = np.linspace(0.8, 5.2, 100)
 ax3.plot(x_line, slope * x_line + intercept, color='#333333',
          linewidth=2, linestyle='-', label=f'Trend (r={r:.2f}, p={p:.3f})')
@@ -244,7 +249,7 @@ prop_high = []
 prop_low  = []
 ns_bar    = []
 for l in LEVELS:
-    sub = df[df['copypaste_dummy'] == l]['testscore'].dropna()
+    sub = df[df['copypaste_score_auto'] == l]['testscore'].dropna()
     n = len(sub)
     ns_bar.append(n)
     prop_high.append((sub >= score_cutoff_high).mean() * 100 if n > 0 else 0)
@@ -273,12 +278,9 @@ fig.suptitle(
 )
 
 # ── Save ──────────────────────────────────────────────────────────────────────
-out_png = 'figures/copypaste_vs_testscore.png'
-out_pdf = 'figures/copypaste_vs_testscore.pdf'
+out_png = 'figures/fig11_copypaste_vs_testscore.png'
 fig.savefig(out_png, dpi=200, bbox_inches='tight', facecolor='#FAFAFA')
-fig.savefig(out_pdf, bbox_inches='tight', facecolor='#FAFAFA')
 print(f"\nSaved: {out_png}")
-print(f"Saved: {out_pdf}")
 
 # ── Print clean summary table ─────────────────────────────────────────────────
 print("\n── Summary statistics ──────────────────────────────────────────")

@@ -11,23 +11,27 @@ sns.set_theme(style="whitegrid", palette="muted")
 Path("figures").mkdir(exist_ok=True)
 
 print("Loading dataset...")
-df = pd.read_csv('data/01_full_sample_with_prompts_EVALUATED.csv')
+df1 = pd.read_csv('conversations_evaluated_final.csv')
+df2 = pd.read_csv('copypaste_auto_detection.csv')
+if 'copypaste_score_auto' in df1.columns:
+    df1 = df1.drop(columns=['copypaste_score_auto'])
+df = df1.merge(df2[['conversation_id', 'copypaste_score_auto']], on='conversation_id', how='left')
 
 # Drop rows where we don't have evaluation data
-eval_df = df.dropna(subset=['copypaste_dummy', 'substitute_learning', 'complement_learning']).copy()
+eval_df = df.dropna(subset=['copypaste_score_auto', 'substitute_learning', 'complement_learning']).copy()
 
 # Ensure numeric types
-for col in ['copypaste_dummy', 'substitute_learning', 'complement_learning']:
+for col in ['copypaste_score_auto', 'substitute_learning', 'complement_learning']:
     eval_df[col] = pd.to_numeric(eval_df[col], errors='coerce')
 
-eval_df = eval_df.dropna(subset=['copypaste_dummy', 'substitute_learning', 'complement_learning'])
+eval_df = eval_df.dropna(subset=['copypaste_score_auto', 'substitute_learning', 'complement_learning'])
 
 print(f"Data ready. Generating plots for {len(eval_df)} evaluated conversations...")
 
 # --- PLOT 1: Substitute vs. Complement Learning by Copy-Paste Level ---
 plt.figure(figsize=(10, 6))
 # Create a categorical variable for cleaner plotting
-eval_df['Copy-Paste Level (LLM)'] = eval_df['copypaste_dummy'].round().astype(int)
+eval_df['Copy-Paste Level (LLM)'] = eval_df['copypaste_score_auto'].round().astype(int)
 
 # Use jitter to prevent overplotting
 sns.stripplot(
