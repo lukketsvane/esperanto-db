@@ -1,6 +1,9 @@
 """
 Copy-Paste Behavior vs. Test Score Analysis
 Examines how copy-paste level (1-5) correlates with exam outcomes.
+
+Maximizes participant linkage by matching unlinked survey respondents
+to conversations via CSN/PC mapping and session timing.
 """
 
 import pandas as pd
@@ -11,18 +14,118 @@ from scipy import stats
 import warnings
 warnings.filterwarnings('ignore')
 
-# ── Load & Merge ─────────────────────────────────────────────────────────────
+# ── Load all data sources ────────────────────────────────────────────────────
 df_eval = pd.read_csv('conversations_evaluated_final.csv')
 df_main = pd.read_csv('data/01_full_sample_with_prompts.csv', on_bad_lines='skip')
+df_conv = pd.read_csv('data/conversations_final.csv')
 
-df = df_eval.merge(
+print("=" * 60)
+print("DATA LINKAGE REPORT")
+print("=" * 60)
+print(f"Conversations evaluated:       {len(df_eval)}")
+print(f"Unique conversation participants: {df_conv['participant_id'].nunique()}")
+print(f"Survey respondents (with data): {df_main['StartDate'].notna().sum()}")
+print(f"Survey respondents with testscore: {df_main['testscore'].notna().sum()}")
+print()
+
+# ── Step 1: Direct merge (existing linkage) ──────────────────────────────────
+df_direct = df_eval.merge(
     df_main[['conversation_id', 'testscore', 'treatment', 'gender', 'highgpa']],
     on='conversation_id', how='inner'
 ).dropna(subset=['copypaste_dummy', 'testscore'])
 
+print(f"Direct merge (existing links): {len(df_direct)} participants")
+
+# ── Step 2: Match unlinked AI survey respondents via CSN + session ───────────
+has_data = df_main[df_main['StartDate'].notna()]
+linked_conv_ids = set(df_direct['conversation_id'])
+linked_pids = set(df_main.loc[df_main['conversation_id'].notna(), 'participant_id'].dropna())
+
+# Build session → (date, time_range) mapping from already-linked rows
+linked_rows = has_data[has_data['conversation_id'].notna()]
+session_info = linked_rows.groupby('session').agg(
+    date=('startdate', 'first'),
+    hour_min=('starthour', 'min'),
+    hour_max=('starthour', 'max')
+).to_dict('index')
+
+# Prepare conversation data with CSN number and local time
+df_conv['csn_num'] = df_conv['csn'].str.extract(r'(\d+)').astype(float)
+df_conv['create_dt'] = pd.to_datetime(df_conv['create_time'], unit='s')
+df_conv['create_day'] = df_conv['create_dt'].dt.day
+df_conv['create_hour_utc'] = df_conv['create_dt'].dt.hour + df_conv['create_dt'].dt.minute / 60
+df_conv['create_hour_local'] = df_conv['create_hour_utc'] + 1  # UTC → CET
+
+# Assign each conversation an estimated session based on day + time
+def assign_session(row):
+    day = row['create_day']
+    hour = row['create_hour_local']
+    best_session, best_diff = None, float('inf')
+    for s, info in session_info.items():
+        if info['date'] == day:
+            mid = (info['hour_min'] + info['hour_max']) / 2
+            diff = abs(hour - mid)
+            if diff < best_diff:
+                best_diff = diff
+                best_session = s
+    return best_session
+
+df_conv['estimated_session'] = df_conv.apply(assign_session, axis=1)
+
+# Find unlinked AI survey respondents (assist/guided without conversation_id)
+unlinked_ai = has_data[
+    (has_data['treatment'].isin(['assist', 'guided'])) &
+    (has_data['conversation_id'].isna()) &
+    (has_data['testscore'].notna())
+]
+
+# Match by PC (= CSN number) and session
+new_matches = []
+for idx, row in unlinked_ai.iterrows():
+    pc = row['PC']
+    session = row['session']
+    candidates = df_conv[
+        (df_conv['csn_num'] == pc) &
+        (df_conv['estimated_session'] == session) &
+        (~df_conv['participant_id'].isin(linked_pids)) &
+        (~df_conv['conversation_id'].isin(linked_conv_ids))
+    ]
+    if len(candidates) == 1:
+        match = candidates.iloc[0]
+        new_matches.append({
+            'conversation_id': match['conversation_id'],
+            'testscore': row['testscore'],
+            'treatment': row['treatment'],
+            'gender': row.get('gender'),
+            'highgpa': row.get('highgpa'),
+        })
+        linked_pids.add(match['participant_id'])
+        linked_conv_ids.add(match['conversation_id'])
+
+print(f"New matches via CSN+session:    {len(new_matches)} participants")
+
+# Merge the new matches with evaluation data
+if new_matches:
+    df_new = pd.DataFrame(new_matches)
+    df_new_merged = df_eval.merge(df_new, on='conversation_id', how='inner')
+    df_new_merged = df_new_merged.dropna(subset=['copypaste_dummy', 'testscore'])
+    df = pd.concat([df_direct, df_new_merged], ignore_index=True)
+else:
+    df = df_direct
+
 df['copypaste_dummy'] = df['copypaste_dummy'].astype(int)
 
-print(f"N = {len(df)} participants with both copy-paste score and test score")
+# ── Step 3: Deduplicate (some conversations may share same survey row) ────────
+df = df.drop_duplicates(subset=['conversation_id'], keep='first')
+
+print(f"Final sample:                   {len(df)} participants")
+print()
+print(f"Total conversation participants: 375")
+print(f"Survey respondents with test score: {has_data['testscore'].notna().sum()}")
+print(f"  - AI users (assist+guided): {has_data[has_data['treatment'].isin(['assist','guided'])]['testscore'].notna().sum()}")
+print(f"  - Control (no conversations): {has_data[(has_data['treatment']=='control') | ((has_data['treatment'].isna()) & (has_data[['control']].sum(axis=1)>0))]['testscore'].notna().sum() if 'control' in has_data.columns else 'N/A'}")
+print(f"Linked with copypaste + testscore: {len(df)}")
+print(f"Gap: {375 - len(df)} participants had no survey test score")
 print()
 
 # ── Summary statistics ────────────────────────────────────────────────────────
