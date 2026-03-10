@@ -1,0 +1,19 @@
+Rate this Esperanto learning conversation (1-5 scale). Return ONLY valid JSON matching this schema:
+{
+  "germane_load": <1-5>,
+  "metacog_planning": <1-5>,
+  "metacog_monitoring": <1-5>,
+  "metacog_evaluation": <1-5>,
+  "ling_quantity": <1-5>,
+  "ling_accuracy": <1-5>,
+  "self_regulation": <1-5>,
+  "critical_thinking": <1-5>,
+  "engagement_cognitive": <1-5>,
+  "engagement_affective": <1-5>,
+  "question_sophistication": <1-5>,
+  "iterative_depth": <1-5>,
+  "memory_retention": <1-5>,
+  "ownership": <1-5>,
+  "substitute_learning": <1-5>,
+  "complement_learning": <1-5>
+}
