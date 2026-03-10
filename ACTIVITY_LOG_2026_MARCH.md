@@ -12,7 +12,7 @@ This log tracks the updates made to the Esperanto learning conversation evaluati
 - **Full Context Extraction**: Updated `extract_all_messages()` to capture both **USER** and **ASSISTANT** messages. This provides the evaluator with the full conversational flow, which is critical for understanding "complementary" vs "substitutive" learning.
 - **Model Upgrade**: Transitioned from `gpt-3.5-turbo` to `gemini-3.1-flash-lite-preview` for high-throughput, high-reasoning evaluation.
 - **New Metrics (1-5 Scale)**:
-    - `copypaste_dummy`: Frequency of verbatim or near-verbatim copying of task instructions.
+    - `copypaste_score_auto`: Frequency of verbatim or near-verbatim copying of task instructions.
     - `substitute_learning`: Using AI to replace cognitive effort (e.g., "translate this for me").
     - `complement_learning`: Using AI to augment effort (e.g., "explain why this grammar is used").
 - **Unified Evaluation Script (`scripts/evaluate_conversations.py`)**: Consolidated the evaluation logic into a single parameterized script that can run different prompt types.
@@ -25,7 +25,7 @@ Running both evaluation modes yielded striking differences, validating the use o
 - **Explicit Prompting**: Mean Copy-Paste: 2.23 | Mean Substitute Learning: 3.20. (Strong inverse correlation with Complement Learning: **r = -0.54**).
 - **Implicit Prompting**: Mean Copy-Paste: 1.31 | Mean Substitute Learning: 2.13. (Failed to accurately identify substitutive behaviors, clustering scores too tightly).
 
-By explicitly defining variables like `copypaste_dummy` and `substitute_learning`, the LLM was able to accurately penalize low-effort interactions, whereas zero-shot (implicit) inference drastically underreported these behaviors.
+By explicitly defining variables like `copypaste_score_auto` and `substitute_learning`, the LLM was able to accurately penalize low-effort interactions, whereas zero-shot (implicit) inference drastically underreported these behaviors.
 
 ## 3. Programmatic Behavior Detection
 - **Auto-Detection Script**: Created `scripts/detect_copypaste.py`.
@@ -38,14 +38,14 @@ By explicitly defining variables like `copypaste_dummy` and `substitute_learning
 
 ### Dual Methodology Results
 - **Auto-Detection (`copypaste_score_auto`)**: Captured verbatim copy-pasting of specific task questions. Found 59 instances of copying.
-- **LLM Assessment (`copypaste_dummy`)**: Captured broader "structural" copying. Found 88 conversations with high copy-pasting behavior (Scores 4-5).
+- **LLM Assessment (`copypaste_score_auto`)**: Captured broader "structural" copying. Found 88 conversations with high copy-pasting behavior (Scores 4-5).
 - **The Gap**: Verbatim auto-matching often missed participants who paraphrased or slightly modified questions, while the LLM was able to recognize the intent of copying.
 
 ### Correlation with Learning Approach
 The analysis reveals a strong inverse relationship between copying behavior and cognitive engagement:
-1. **The "Low Effort" Profile**: High copy-pasting (`copypaste_dummy` >= 4) is strongly correlated with **Substitutive Learning** (r = 0.22, but significantly lower Complement scores). 
+1. **The "Low Effort" Profile**: High copy-pasting (`copypaste_score_auto` >= 4) is strongly correlated with **Substitutive Learning** (r = 0.22, but significantly lower Complement scores). 
 2. **Substitutive Bias**: In high-copy conversations (Score 5), the **Complement Learning score drops to ~1.0**. These participants use AI exclusively as a "black box" to provide answers without seeking explanation or deeper understanding.
-3. **The Inverse Correlation**: A significant negative correlation (**r = -0.54**) exists between `copypaste_dummy` and `complement_learning`. This confirms that copy-pasting is a behavioral proxy for low cognitive engagement.
+3. **The Inverse Correlation**: A significant negative correlation (**r = -0.54**) exists between `copypaste_score_auto` and `complement_learning`. This confirms that copy-pasting is a behavioral proxy for low cognitive engagement.
 
 ### Participant Segmentation
 - **Type A: Active Learners**: Low copy-paste scores, high `complement_learning`. These students type their own queries and ask "why."
@@ -103,8 +103,8 @@ Output: `figures/conversation_examples.md`
 - **Heterogeneous effects**: Gender x Treatment and GPA x Treatment interactions visualized
 
 ### Updated Key Correlations (Explicit Eval, N=394)
-- copypaste_dummy <-> complement_learning: **r = -0.540** (p<0.001)
-- copypaste_dummy <-> substitute_learning: **r = 0.217** (p<0.001)
+- copypaste_score_auto <-> complement_learning: **r = -0.540** (p<0.001)
+- copypaste_score_auto <-> substitute_learning: **r = 0.217** (p<0.001)
 - cognitive_engagement <-> overall_learning_quality: **r = 0.960** (p<0.001)
 - agency_ownership <-> self_directedness: **r = 0.841** (p<0.001)
 - substitute_learning <-> complement_learning: **r = -0.567** (p<0.001)
@@ -122,7 +122,7 @@ Output: `figures/conversation_examples.md`
 | agency_ownership | 2.27 | 0.98 | 2.0 |
 | query_sophistication | 1.63 | 0.72 | 1.5 |
 | overall_learning_quality | 2.11 | 0.81 | 2.0 |
-| copypaste_dummy | 2.23 | 1.56 | 1.0 |
+| copypaste_score_auto | 2.23 | 1.56 | 1.0 |
 | substitute_learning | 3.20 | 1.25 | 4.0 |
 | complement_learning | 2.47 | 1.26 | 2.0 |
 

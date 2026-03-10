@@ -32,7 +32,7 @@ COMPOSITE_METRICS = [
     "agency_ownership", "query_sophistication", "overall_learning_quality",
 ]
 
-AI_METRICS = ["copypaste_dummy", "substitute_learning", "complement_learning"]
+AI_METRICS = ["copypaste_score_auto", "substitute_learning", "complement_learning"]
 
 ALL_METRICS = COMPOSITE_METRICS + AI_METRICS
 
@@ -40,6 +40,13 @@ ALL_METRICS = COMPOSITE_METRICS + AI_METRICS
 def load_data():
     """Load explicit eval data and merge with participant metadata."""
     eval_df = pd.read_csv(BASE_DIR / "conversations_evaluated_explicit.csv")
+    
+    # Merge auto scores
+    df_auto = pd.read_csv(BASE_DIR / "copypaste_auto_detection.csv")
+    if 'copypaste_score_auto' in eval_df.columns:
+        eval_df = eval_df.drop(columns=['copypaste_score_auto'])
+    eval_df = eval_df.merge(df_auto[['conversation_id', 'copypaste_score_auto']], on='conversation_id', how='left')
+
     # Filter out errors
     if "error" in eval_df.columns:
         eval_df = eval_df[eval_df["error"].isna() | (eval_df["error"] == "")]
@@ -90,7 +97,7 @@ def annotate_regression(ax, x, y, color="red"):
 def save_fig(name):
     """Save figure as both PNG and PDF."""
     plt.savefig(FIG_DIR / f"{name}.png")
-    plt.savefig(FIG_DIR / f"{name}.pdf")
+    # plt.savefig(FIG_DIR / f"{name}.pdf")
     plt.close()
     print(f"  Saved {name}")
 
@@ -99,10 +106,10 @@ def save_fig(name):
 
 def fig1_substitute_vs_complement(df):
     fig, ax = plt.subplots(figsize=(9, 7))
-    sub = df.dropna(subset=["substitute_learning", "complement_learning", "copypaste_dummy"])
+    sub = df.dropna(subset=["substitute_learning", "complement_learning", "copypaste_score_auto"])
     scatter = ax.scatter(
         sub["substitute_learning"], sub["complement_learning"],
-        c=sub["copypaste_dummy"], cmap="RdYlGn_r", s=60, alpha=0.7,
+        c=sub["copypaste_score_auto"], cmap="RdYlGn_r", s=60, alpha=0.7,
         edgecolors="grey", linewidth=0.5, vmin=1, vmax=5,
     )
     annotate_regression(ax, sub["substitute_learning"], sub["complement_learning"], color="darkred")
@@ -117,8 +124,8 @@ def fig1_substitute_vs_complement(df):
 # ── Figure 2: Copy-Paste Impact Bar Chart ────────────────────────────────────
 
 def fig2_copypaste_impact_bar(df):
-    sub = df.dropna(subset=["copypaste_dummy", "substitute_learning", "complement_learning"]).copy()
-    sub["cp_level"] = sub["copypaste_dummy"].round().astype(int).clip(1, 5)
+    sub = df.dropna(subset=["copypaste_score_auto", "substitute_learning", "complement_learning"]).copy()
+    sub["cp_level"] = sub["copypaste_score_auto"].round().astype(int).clip(1, 5)
 
     agg = sub.groupby("cp_level")[["substitute_learning", "complement_learning"]].agg(["mean", "sem"]).reset_index()
     agg.columns = ["cp_level", "sub_mean", "sub_sem", "comp_mean", "comp_sem"]
@@ -324,7 +331,7 @@ def fig9_relationships(df):
     pairs = [
         ("cognitive_engagement", "overall_learning_quality", "Cognitive Engagement", "Overall Learning Quality"),
         ("self_directedness", "overall_learning_quality", "Self-Directedness", "Overall Learning Quality"),
-        ("copypaste_dummy", "complement_learning", "Copy-Paste Score", "Complement Learning"),
+        ("copypaste_score_auto", "complement_learning", "Copy-Paste Score", "Complement Learning"),
         ("n_messages", "cognitive_engagement", "Number of Messages", "Cognitive Engagement"),
     ]
     for ax, (xcol, ycol, xlabel, ylabel) in zip(axes.flatten(), pairs):
@@ -406,8 +413,8 @@ def generate_summary(df):
     # Print key correlations
     print("\n  Key correlations:")
     corr_pairs = [
-        ("copypaste_dummy", "complement_learning"),
-        ("copypaste_dummy", "substitute_learning"),
+        ("copypaste_score_auto", "complement_learning"),
+        ("copypaste_score_auto", "substitute_learning"),
         ("cognitive_engagement", "overall_learning_quality"),
         ("agency_ownership", "self_directedness"),
         ("substitute_learning", "complement_learning"),
