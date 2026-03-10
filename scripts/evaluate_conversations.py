@@ -19,6 +19,11 @@ parser.add_argument(
     default='explicit',
     help='Choose the system prompt type: "implicit" (no definitions) or "explicit" (strict rubrics). Defaults to "explicit".'
 )
+parser.add_argument(
+    '--ids',
+    nargs='+',
+    help='Specific conversation IDs to evaluate (space-separated). If omitted, evaluates all.'
+)
 args = parser.parse_args()
 
 # --- Initialize Gemini ---
@@ -196,9 +201,15 @@ def main():
         conversations = load_conversation_from_csn(csn_folder)
         for conv_data in conversations:
             conv_id = conv_data.get('id', f"{csn_name}_unknown")
+            if args.ids and conv_id not in args.ids:
+                continue
             all_conversations.append((conv_data, conv_id, csn_name))
 
     progress_counter["total"] = len(all_conversations)
+    if progress_counter["total"] == 0:
+        print("No conversations to evaluate. Check IDs or CSN folders.")
+        return
+    
     print(f"Evaluating {len(all_conversations)} conversations\n")
 
     all_results = []
